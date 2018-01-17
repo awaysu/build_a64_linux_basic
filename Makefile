@@ -10,13 +10,13 @@ BUILDROOT_URL := https://github.com/awaysu/buildroot.git
 UBOOT_URL := https://github.com/awaysu/u-boot-pine64.git
 A64_FIRMWARE_URL := https://github.com/awaysu/arm-trusted-firmware.git
 SUNXI_TOOL_URL := https://github.com/awaysu/sunxi-pack-tools.git
-START_TIME=$(date +%s)
+START_TIME=$$(date +%s)
 
 
 all: check download copy_files build_kernel build_uboot build_busyobx build_buildroot build_out build_img
-	echo "========================================================================="
-	echo "Build took $$(($$(date +%s)-START_TIME)) seconds"
-	echo
+	@echo "========================================================================="
+	@echo "Build took $$(($$(date +%s)-START_TIME)) seconds"
+	@echo
 	
 download:
 	@if [ ! -d "./gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu" ]; then \
