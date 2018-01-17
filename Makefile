@@ -1,33 +1,56 @@
 USER := $(shell whoami)
 PWD := $(shell pwd)
-PATH := $PWD/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu/bin:$(PATH)
+PATH := $(PWD)/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu/bin:$(PWD)/gcc-arm-linux-gnueabihf-4.7/bin:$(PATH)
+
+A64_TOOLCHAIN_URL := https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/aarch64-linux-gnu/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz
+ARM_TOOLCHAIN_URL := https://github.com/awaysu/gcc-arm-linux-gnueabihf-4.7.git
+A64_KERNEL_URL := https://github.com/awaysu/linux-pine64.git
+BUSYBOX_URL := https://git.busybox.net/busybox/snapshot/busybox-1_28_0.tar.gz
+BUILDROOT_URL := https://git.busybox.net/buildroot/snapshot/buildroot-2017.02.9.tar.gz
+UBOOT_URL := https://github.com/awaysu/u-boot-pine64.git
+A64_FIRMWARE_URL := https://github.com/awaysu/arm-trusted-firmware.git
+SUNXI_TOOL_URL := https://github.com/awaysu/sunxi-pack-tools.git
+START_TIME=$(date +%s)
+
 
 all: check download copy_files build_kernel build_uboot build_busyobx build_buildroot build_out build_img
-
+	echo "========================================================================="
+	echo "Build took $$(($$(date +%s)-START_TIME)) seconds"
+	echo
+	
 download:
 	@if [ ! -d "./gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu" ]; then \
-        wget https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/aarch64-linux-gnu/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz; \
-	tar xvf gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz; \
-	rm gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz; \
+        wget $(A64_TOOLCHAIN_URL); \
+		tar Jxvf gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz; \
+		rm gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz; \
+	fi
+	@if [ ! -d "./gcc-arm-linux-gnueabihf-4.7" ]; then \
+		git clone $(ARM_TOOLCHAIN_URL); \
 	fi
 	@if [ ! -d "./linux-pine64" ]; then \
-        git clone --depth 1 --branch pine64-hacks-1.2 --single-branch https://github.com/longsleep/linux-pine64.git linux-pine64; \
+		git clone --depth 1 --branch pine64-hacks-1.2 --single-branch $(A64_KERNEL_URL) linux-pine64; \
     fi
 	@if [ ! -d "./busybox" ]; then \
-        git clone --depth 1 --branch 1_24_stable --single-branch git://git.busybox.net/busybox busybox; \
-    fi
+ 		wget $(BUSYBOX_URL); \
+		tar zxvf busybox-1_28_0.tar.gz; \
+		mv busybox-1_28_0 busybox; \
+		rm -rf busybox-1_28_0.tar.gz; \
+	fi
 	@if [ ! -d "./buildroot" ]; then \
-        git clone git://git.buildroot.net/buildroot; \
-    fi
+		wget $(BUILDROOT_URL); \
+		tar zxvf buildroot-2017.02.9.tar.gz; \
+		mv buildroot-2017.02.9 buildroot; \
+		rm -rf buildroot-2017.02.9.tar.gz; \
+	fi
 	@if [ ! -d "./u-boot-pine64" ]; then \
-       git clone --depth 1 --branch pine64-hacks --single-branch https://github.com/longsleep/u-boot-pine64.git u-boot-pine64; \
-    fi
+		git clone --depth 1 --branch pine64-hacks --single-branch $(UBOOT_URL) u-boot-pine64; \
+	fi
 	@if [ ! -d "./arm-trusted-firmware-pine64" ]; then \
-       git clone --branch allwinner-a64-bsp --single-branch https://github.com/longsleep/arm-trusted-firmware.git arm-trusted-firmware-pine64; \
-    fi
+		git clone --branch allwinner-a64-bsp --single-branch $(A64_FIRMWARE_URL) arm-trusted-firmware-pine64; \
+	fi
 	@if [ ! -d "./sunxi-pack-tools" ]; then \
-       git clone https://github.com/longsleep/sunxi-pack-tools.git sunxi-pack-tools; \
-    fi
+		git clone $(SUNXI_TOOL_URL) sunxi-pack-tools; \
+	fi
 	
 copy_files:
 	cp files/install_kernel.sh linux-pine64
@@ -58,7 +81,7 @@ clean:
     fi
 	
 distclean:
-	rm -Rf gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu linux-pine64 busybox buildroot u-boot-pine64 arm-trusted-firmware-pine64 sunxi-pack-tools out
+	rm -rf gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu gcc-arm-linux-gnueabihf-4.7 linux-pine64 busybox buildroot u-boot-pine64 arm-trusted-firmware-pine64 sunxi-pack-tools out
 	
 build_kernel:
 	@echo "[Build kernel ...]"
@@ -119,7 +142,7 @@ build_img:
 	mount out/sdx2.ext4.img out/image_tmp
 	rsync -a --no-owner --no-group out/sdx2/* out/image_tmp
 	umount out/image_tmp
-	rm -Rf out/image_tmp
+	rm -rf out/image_tmp
 
 
 
