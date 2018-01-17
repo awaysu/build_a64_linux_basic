@@ -5,8 +5,8 @@ PATH := $(PWD)/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu/bin:$(PWD)/gcc-
 A64_TOOLCHAIN_URL := https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/aarch64-linux-gnu/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz
 ARM_TOOLCHAIN_URL := https://github.com/awaysu/gcc-arm-linux-gnueabihf-4.7.git
 A64_KERNEL_URL := https://github.com/awaysu/linux-pine64.git
-BUSYBOX_URL := https://git.busybox.net/busybox/snapshot/busybox-1_28_0.tar.gz
-BUILDROOT_URL := https://git.busybox.net/buildroot/snapshot/buildroot-2017.02.9.tar.gz
+BUSYBOX_URL := https://git.busybox.net/busybox/snapshot/busybox-1_24_2.tar.gz
+BUILDROOT_URL := https://github.com/awaysu/buildroot.git
 UBOOT_URL := https://github.com/awaysu/u-boot-pine64.git
 A64_FIRMWARE_URL := https://github.com/awaysu/arm-trusted-firmware.git
 SUNXI_TOOL_URL := https://github.com/awaysu/sunxi-pack-tools.git
@@ -32,15 +32,12 @@ download:
     fi
 	@if [ ! -d "./busybox" ]; then \
  		wget $(BUSYBOX_URL); \
-		tar zxvf busybox-1_28_0.tar.gz; \
-		mv busybox-1_28_0 busybox; \
-		rm -rf busybox-1_28_0.tar.gz; \
+		tar zxvf busybox-1_24_2.tar.gz; \
+		mv busybox-1_24_2 busybox; \
+		rm -rf busybox-1_24_2.tar.gz; \
 	fi
 	@if [ ! -d "./buildroot" ]; then \
-		wget $(BUILDROOT_URL); \
-		tar zxvf buildroot-2017.02.9.tar.gz; \
-		mv buildroot-2017.02.9 buildroot; \
-		rm -rf buildroot-2017.02.9.tar.gz; \
+		git clone $(BUILDROOT_URL) buildroot; \
 	fi
 	@if [ ! -d "./u-boot-pine64" ]; then \
 		git clone --depth 1 --branch pine64-hacks --single-branch $(UBOOT_URL) u-boot-pine64; \
