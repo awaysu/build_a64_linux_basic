@@ -5,7 +5,7 @@ PATH := $(PWD)/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu/bin:$(PWD)/gcc-
 A64_TOOLCHAIN_URL := https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/aarch64-linux-gnu/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz
 ARM_TOOLCHAIN_URL := https://github.com/awaysu/gcc-arm-linux-gnueabihf-4.7.git
 A64_KERNEL_URL := https://github.com/awaysu/linux-pine64.git
-BUSYBOX_URL := https://git.busybox.net/busybox/snapshot/busybox-1_24_2.tar.gz
+BUSYBOX_URL := https://github.com/awaysu/busybox.git
 BUILDROOT_URL := https://github.com/awaysu/buildroot.git
 UBOOT_URL := https://github.com/awaysu/u-boot-pine64.git
 A64_FIRMWARE_URL := https://github.com/awaysu/arm-trusted-firmware.git
@@ -31,10 +31,7 @@ download:
 		git clone --depth 1 --branch pine64-hacks-1.2 --single-branch $(A64_KERNEL_URL) linux-pine64; \
     fi
 	@if [ ! -d "./busybox" ]; then \
- 		wget $(BUSYBOX_URL); \
-		tar zxvf busybox-1_24_2.tar.gz; \
-		mv busybox-1_24_2 busybox; \
-		rm -rf busybox-1_24_2.tar.gz; \
+		git clone $(BUSYBOX_URL) busybox; \
 	fi
 	@if [ ! -d "./buildroot" ]; then \
 		git clone $(BUILDROOT_URL) buildroot; \
@@ -110,6 +107,7 @@ build_out:
 	@echo "[Create kernel and rootfs ...]"
 	cd $(PWD)/linux-pine64;./install_kernel.sh $(PWD)/out/sdx1 .
 	cp $(PWD)/buildroot/output/target/ $(PWD)/out/sdx2 -a
+	cp $(PWD)/busybox/busybox $(PWD)/out/sdx2/bin/
 	rm $(PWD)/out/sdx2/dev/console -Rf
 	mknod -m 600 $(PWD)/out/sdx2/dev/console c 5 1
 	mknod -m 666 $(PWD)/out/sdx2/dev/null c 1 3
