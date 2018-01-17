@@ -100,7 +100,7 @@ ifeq ($(USER),root)
 	@echo "[Start build images ...]"
 else
 	@echo "[Please use root to build ...]"
-	@sleep
+	@sleep 9999
 endif
 
 build_img:
